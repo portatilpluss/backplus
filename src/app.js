@@ -13,7 +13,8 @@ app.use(morgan("dev"));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: 'http://localhost:2900',
+    // origin: 'http://localhost:2900',
+    origin: 'https://frontplus.onrender.com',
     credentials: true
 }))
 

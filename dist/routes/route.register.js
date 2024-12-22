@@ -12,7 +12,7 @@ var _oauth = require("../middelware/oauth.js");
 var routeLogin = (0, _express.Router)();
 routeLogin.post("/register", _controllerRegister.register);
 routeLogin.post("/login", _controllerRegister.loginUser);
-routeLogin.get("/view", _oauth.verifyToken, _controllerRegister.viewRegister);
+routeLogin.get("/view", _controllerRegister.viewRegister);
 routeLogin.put("/update", _controllerRegister.updatePassword);
 routeLogin.post("/email", _controllerRegister.insertEmail);
 routeLogin.post("/code", _controllerRegister.insertCode);
