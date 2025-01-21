@@ -40,11 +40,45 @@ export const register =async(req, res)=>{
     }
     
 }
+export const registerAdmin =async(req, res)=>{
+    const name= req.body.name;
+    const lastname= req.body.lastname;
+    const id = req.body.id;
+    const age = req.body.age;
+    const phone = req.body.phone;
+    const email= req.body.email;
+    const paswordsin= req.body.pasword;
+    const idrole= req.body.idrole;
+
+    try {
+        const salt = await bcrypt.genSalt(5);
+        const paswordhash = await bcrypt.hash(paswordsin, salt);
+        const pasword = paswordhash;
+
+        const [result] = await pool.query(`CALL SP_ADDREGISTER(?,?,?,?,?);`,[name,lastname,id,age,phone]);
+        if(result.affectedRows==1){ 
+            const [lastInsertResult] = await pool.query('SELECT LAST_INSERT_ID() AS idemployes');
+            const idemployes = lastInsertResult[0].idemployes; // Obtenemos el iduser insertado
+              
+              const authresult = await pool.query(`CALL SP_AUTHADMIN(?,?,?,?);`, [idemployes, email, pasword, idrole]);
+              if(authresult[0].affectedRows==1){
+                  return res.status(200).json({error: false, message : "Admin Register"});
+                }
+                    
+        }else{
+            res.status(401).json({error: true, message : "Admin No Register"});
+        }
+    } catch (err) {
+        console.error("Error Fuction:", err); 
+        res.status(500).json({error: true, message: "Error" });
+    }
+    
+}
 
 
 
 export const loginUser = async(req, res)=>{
-    const {email, pasword} = req.body;
+    const {iduser,name,email, pasword} = req.body;
 
     try {
         const result = await pool.query(`CALL SP_LOGIN(?);`,[email]);
@@ -63,6 +97,8 @@ export const loginUser = async(req, res)=>{
         if(user.idrole === 1 || user.idrole === 2){
 
             const payload = {
+                iduser: user.iduser,
+                name:user.name,
                 email: user.email,
                 idrole: user.idrole
             }
@@ -80,10 +116,10 @@ export const loginUser = async(req, res)=>{
                 maxAge: 1000*60*60
             });
             const role = user.idrole === 1 ? 'Admin': 'User';
-             return res.status(200).json({error:false ,message: `Welcome ${role}`, token, payload});
+             return res.status(200).json({error: false ,message: `Welcome ${role}`, token, payload});
 
         }else{
-            return res.status(500).json({error:true ,message: "Rol Incorrect!", token, payload});
+            return res.status(500).json({error: true ,message: "Rol Incorrect!", token, payload});
         }
         }
     } catch (error) {
@@ -94,8 +130,9 @@ export const loginUser = async(req, res)=>{
 
 
 export const viewRegister = async(req, res) => {
+    const iduser = req.user.iduser;
     try {
-        const resukt = await pool.query(`CALL SP_VIEW_REGISTER();`);
+        const resukt = await pool.query(`CALL SP_VIEW_REGISTER(?);`,[iduser]);
         // console.log(resukt);
         
         res.status(200).json({error:false, resul: resukt[0] })
@@ -209,3 +246,26 @@ export const updatePassword = async(req, res)=>{
 
 
 
+export const admins = async(req, res)=>{
+    try {
+        const respon = await pool.query(`CALL SP_ADMINS();`);
+        res.status(200).json({error: false, resul: respon[0] });
+    } catch (error) {
+        res.status(500).json({error: false, resul: "Error" });
+    }
+}
+export const deleteAdmins = async(req, res)=>{
+    const idemployes = req.params.idemployes
+    try {
+        const respon = await pool.query(`CALL SP_DELETEADMIN('${idemployes}');`);
+        if(respon[0].affectedRows==1){
+            res.status(200).json({error: false, resul: "Employes Delete Corretment" });
+            
+        }else{
+            res.status(400).json({error: false, resul: "Error Delete employes" });
+
+        }
+    } catch (error) {
+        res.status(500).json({error: false, resul: "Error" });
+    }
+}
