@@ -23,7 +23,7 @@ var verifyToken = exports.verifyToken = /*#__PURE__*/function () {
           }
           return _context.abrupt("return", res.status(401).json({
             error: true,
-            message: "Invalid token!"
+            message: " token!"
           }));
         case 3:
           _context.prev = 3;
@@ -31,21 +31,22 @@ var verifyToken = exports.verifyToken = /*#__PURE__*/function () {
           return _jsonwebtoken["default"].verify(token, process.env.PRIVATE_KEY);
         case 6:
           Verify = _context.sent;
+          req.user = Verify;
           next();
-          _context.next = 13;
+          _context.next = 14;
           break;
-        case 10:
-          _context.prev = 10;
+        case 11:
+          _context.prev = 11;
           _context.t0 = _context["catch"](3);
           res.status(403).json({
             error: true,
             message: "Token is not valid!"
           });
-        case 13:
+        case 14:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[3, 10]]);
+    }, _callee, null, [[3, 11]]);
   }));
   return function verifyToken(_x, _x2, _x3) {
     return _ref.apply(this, arguments);

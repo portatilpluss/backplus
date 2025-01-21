@@ -20,8 +20,8 @@ app.use(_express["default"].urlencoded({
   extended: true
 }));
 app.use((0, _cors["default"])({
-  // origin: 'http://localhost:2900',
-  origin: 'https://frontplus.onrender.com',
+  origin: 'http://localhost:2900',
+  // origin: 'https://frontplus.onrender.com',
   credentials: true
 }));
 app.set("port", process.env.PORT || 3100);
